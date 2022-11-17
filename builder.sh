@@ -45,6 +45,7 @@ declare -A BUILD_MACHINE=(
                           [qemuarm-64]="aarch64" \
                           [qemux86]="i386" \
                           [qemux86-64]="amd64" \
+                          [qemuriscv-64]="riscv64" \
                           [raspberrypi]="armhf" \
                           [raspberrypi2]="armv7" \
                           [raspberrypi3]="armv7" \
@@ -52,7 +53,8 @@ declare -A BUILD_MACHINE=(
                           [raspberrypi4]="armv7" \
                           [raspberrypi4-64]="aarch64" \
                           [yellow]="aarch64" \
-                          [tinker]="armv7" )
+                          [tinker]="armv7" \
+                          [visionfive]="riscv64" )
 
 
 #### Misc functions ####
@@ -99,6 +101,8 @@ Options:
         Build for arm 64bit.
     --i386
         Build for intel/amd 32bit.
+    --riscv64
+        Build for riscv 64bit.
     --all
         Build all architecture.
 
@@ -237,6 +241,7 @@ function run_build() {
         amd64)      docker_platform="linux/amd64" ;;
         i386)       docker_platform="linux/386" ;;
         aarch64)    docker_platform="linux/arm64" ;;
+        riscv64)    docker_platform="linux/riscv64" ;;
         *)          bashio::exit.nok "Recived unknown architecture ${build_arch}" ;;
     esac
 
@@ -329,7 +334,7 @@ function run_build() {
         push_images+=("${repository}/${image}:${tag_image}")
     done
 
-    # Use shaddow repository
+    # Use shadow repository
     if bashio::var.has_value "${shadow_repository}"; then
         bashio::log.info "Generate repository shadow images"
         docker tag "${repository}/${image}:${version}" "${shadow_repository}/${image}:${version}"
@@ -899,8 +904,11 @@ while [[ $# -gt 0 ]]; do
         --aarch64)
             BUILD_LIST+=("aarch64")
             ;;
+        --riscv64)
+            BUILD_LIST+=("riscv64")
+            ;;
         --all)
-            BUILD_LIST=("armhf" "armv7" "amd64" "i386" "aarch64")
+            BUILD_LIST=("armhf" "armv7" "amd64" "i386" "aarch64" "riscv64")
             ;;
         --addon)
             BUILD_TYPE="addon"
