@@ -1,0 +1,12 @@
+ARG BUILD_FROM
+FROM $BUILD_FROM
+
+RUN \
+    set -x \
+    && apk update \
+    && apk upgrade
+
+COPY builder.sh /usr/bin/
+
+WORKDIR /data
+ENTRYPOINT ["/usr/bin/builder.sh"]
